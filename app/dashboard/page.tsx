@@ -105,8 +105,37 @@ export default function LiveDetection() {
   canvas.width = video.videoWidth;
   canvas.height = video.videoHeight;
 
+  // Draw the current video frame to the canvas
   ctx.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
-  const base64 = canvas.toDataURL('image/jpeg');
+
+  // Run detection again to get current face coordinates
+  const blob = await new Promise<Blob>((res) =>
+    canvas.toBlob(res as any, 'image/jpeg')
+  );
+
+  const result = await runInference(blob!);
+  const predictions = result?.outputs?.[0]?.predictions?.predictions || [];
+
+  const face = predictions.find(
+    (p: any) => p.class === 'face' || p.label === 'face'
+  );
+
+  if (!face) return;
+
+  // Calculate bounding box
+  const { x, y, width, height } = face;
+  const x1 = Math.max(0, x - width / 2);
+  const y1 = Math.max(0, y - height / 2);
+
+  // Create a temp canvas for cropping
+  const cropCanvas = document.createElement('canvas');
+  const cropCtx = cropCanvas.getContext('2d')!;
+  cropCanvas.width = width;
+  cropCanvas.height = height;
+
+  cropCtx.drawImage(canvas, x1, y1, width, height, 0, 0, width, height);
+
+  const croppedBase64 = cropCanvas.toDataURL('image/jpeg');
 
   try {
     const res = await fetch('/api/send', {
@@ -114,15 +143,16 @@ export default function LiveDetection() {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ image: base64, email, password }),
+      body: JSON.stringify({ image: croppedBase64, email, password }),
     });
 
     const data = await res.json();
-    console.log("Email response:", data);
+    console.log('Email response:', data);
   } catch (err) {
-    console.error("Email sending failed", err);
+    console.error('Email sending failed', err);
   }
 };
+
 
 
   const drawBoxes = (predictions: any[]) => {
@@ -134,8 +164,8 @@ export default function LiveDetection() {
 
     predictions.forEach((pred) => {
       const { x, y, width, height, class: label, confidence } = pred;
-      const x1 = x - width / 4;
-      const y1 = y - height / 4;
+      const x1 = x - width / 2;
+      const y1 = y - height / 2;
 
       ctx.strokeStyle = '#00FF00';
       ctx.lineWidth = 2;
