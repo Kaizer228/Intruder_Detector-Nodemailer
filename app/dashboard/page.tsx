@@ -109,7 +109,7 @@ export default function LiveDetection() {
   const base64 = canvas.toDataURL('image/jpeg');
 
   try {
-    const res = await fetch('neurowatch-ai.vercel.app/api/send', {
+    const res = await fetch('https://neurowatch-ai.vercel.app/api/send', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
