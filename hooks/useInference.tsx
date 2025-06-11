@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { postImage } from './usePostImage';
 
 export function useInference() {
   const [loading, setLoading] = useState(false);
@@ -14,25 +15,11 @@ export function useInference() {
 
     try {
       const base64 = await blobToBase64(imageBlob);
-
-      const response = await fetch('/api/post', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ base64 }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to fetch inference result');
-      }
-
-      const data = await response.json();
-      setResult(data);
-      return data;
+      const result = await postImage(base64);  
+      setResult(result);
+      return result;
     } catch (err: any) {
-      console.error('Inference error:', err);
+      console.error("Inference error:", err);
       setError(err.message || 'Unknown error');
       throw err;
     } finally {
