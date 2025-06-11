@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useInference } from '@/hooks/useInference';
 import useSendEmail from '@/hooks/useSendEmail';
 import { getCredentials } from '@/helper/general';
+import { useRouter } from 'next/router';
 export default function LiveDetection() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const captureCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -14,9 +15,13 @@ export default function LiveDetection() {
   const { runInference } = useInference();
 
   const {email , password} = getCredentials();  
+  const navigate = useRouter();
 
   useEffect(() => {
+
+  
     const startVideo = async () => {
+      if (!email || !password) return navigate.push("/");
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
