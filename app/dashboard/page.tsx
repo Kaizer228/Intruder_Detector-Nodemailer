@@ -18,8 +18,6 @@ export default function LiveDetection() {
   const navigate = useRouter();
 
   useEffect(() => {
-
-  
     const startVideo = async () => {
       if (!email || !password) return navigate.push("/");
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
