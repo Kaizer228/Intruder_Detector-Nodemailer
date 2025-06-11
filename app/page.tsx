@@ -36,6 +36,7 @@ export default function Page() {
 
  
      alert("Registered Successfully");
+     localStorage.setItem("data", JSON.stringify(data));
      navigate.push("/dashboard")
      return
      
