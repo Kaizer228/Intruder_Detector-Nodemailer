@@ -9,7 +9,6 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "formidable": "^3.5.4",
     "inferencejs": "^1.0.21",
     "next": "15.3.3",
     "nodemailer": "^7.0.3",
@@ -21,7 +20,6 @@
     "@eslint/eslintrc": "^3",
     "@iconify/react": "^6.0.0",
     "@tailwindcss/postcss": "^4",
-    "@types/formidable": "^3.4.5",
     "@types/node": "^20",
     "@types/nodemailer": "^6.4.17",
     "@types/react": "^19",
