@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useInference } from '@/hooks/useInference';
-import useSendEmail from '@/hooks/useSendEmail';
+ 
 import { getCredentials } from '@/helper/general';
 import { useRouter } from 'next/navigation';
 export default function LiveDetection() {
@@ -98,24 +98,32 @@ export default function LiveDetection() {
     }
   };
 
-  const sendFaceImage = async () => {
-    const video = videoRef.current!;
-    const canvas = captureCanvasRef.current!;
-    const ctx = canvas.getContext('2d')!;
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
+   const sendFaceImage = async () => {
+  const video = videoRef.current!;
+  const canvas = captureCanvasRef.current!;
+  const ctx = canvas.getContext('2d')!;
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
 
-    ctx.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
-    const base64 = canvas.toDataURL('image/jpeg'); 
+  ctx.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+  const base64 = canvas.toDataURL('image/jpeg');
 
-    try {
-      const res = await useSendEmail(base64, email, password);
-      console.log(res)
-       
-    } catch (err) {
-      console.error('Email sending failed', err);
-    }
-  };
+  try {
+    const res = await fetch('/api/send', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ image: base64, email, password }),
+    });
+
+    const data = await res.json();
+    console.log("Email response:", data);
+  } catch (err) {
+    console.error("Email sending failed", err);
+  }
+};
+
 
   const drawBoxes = (predictions: any[]) => {
     const canvas = overlayCanvasRef.current!;
