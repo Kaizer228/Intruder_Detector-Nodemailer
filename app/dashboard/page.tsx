@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useInference } from '@/hooks/useInference';
 import useSendEmail from '@/hooks/useSendEmail';
 import { getCredentials } from '@/helper/general';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 export default function LiveDetection() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const captureCanvasRef = useRef<HTMLCanvasElement>(null);
