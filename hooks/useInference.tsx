@@ -15,7 +15,7 @@ export function useInference() {
     try {
       const base64 = await blobToBase64(imageBlob);
 
-      const response = await fetch('/api/post', {
+      const response = await fetch('neurowatch-ai.vercel.app/api/post', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
