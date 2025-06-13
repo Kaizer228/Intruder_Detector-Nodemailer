@@ -22,6 +22,7 @@ export async function postImage(base64: string): Promise<any> {
       const errorText = await response.text();
       throw new Error(`Roboflow API error: ${response.status} - ${errorText}`);
     }
+ 
 
     return await response.json();
   } catch (err) {

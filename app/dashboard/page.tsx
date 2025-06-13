@@ -17,10 +17,14 @@ export default function LiveDetection() {
   const {email , password} = getCredentials();  
   const navigate = useRouter();
 
+
+  //trabaho neto is open yung webcam
+
   useEffect(() => {
     const startVideo = async () => {
       if (!email || !password) return navigate.push("/");
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      //gamit si ref sstreat nya yung video
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
       }
@@ -71,9 +75,15 @@ export default function LiveDetection() {
   }, [detected]);
 
   const captureAndDetect = async () => {
+    // kukunin nya yung property in video stream gamit si ref
     const video = videoRef.current!;
+    // ito naman is yung overlay sa canvas kay video
     const captureCanvas = captureCanvasRef.current!;
+
+    //
     const ctx = captureCanvas.getContext('2d')!;
+
+
     captureCanvas.width = video.videoWidth;
     captureCanvas.height = video.videoHeight;
 
@@ -88,7 +98,7 @@ export default function LiveDetection() {
       const predictions = result?.outputs?.[0]?.predictions?.predictions || [];
 
       const facePredictions = predictions.filter(
-        (p: any) => p.class === 'face' || p.label === 'face'
+        (p: any) => p.class === 'face' || p.class === 'marc_erman'
       );
 
       drawBoxes(facePredictions);
@@ -117,15 +127,19 @@ export default function LiveDetection() {
   const predictions = result?.outputs?.[0]?.predictions?.predictions || [];
 
   const face = predictions.find(
-    (p: any) => p.class === 'face' || p.label === 'face'
+    (p: any) => p.class === 'face' || p.class === 'marc_erman'
   );
 
   if (!face) return;
 
   // Calculate bounding box
-  const { x, y, width, height } = face;
+  const { x, y, width, height, class : label } = face;
   const x1 = Math.max(0, x - width / 2);
   const y1 = Math.max(0, y - height / 2);
+
+    
+  //check if the scanned image is registered
+  if(label == "marc_erman") return
 
   // Create a temp canvas for cropping
   const cropCanvas = document.createElement('canvas');
@@ -158,6 +172,7 @@ export default function LiveDetection() {
   const drawBoxes = (predictions: any[]) => {
     const canvas = overlayCanvasRef.current!;
     const ctx = canvas.getContext('2d')!;
+    
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     canvas.width = videoRef.current!.videoWidth;
     canvas.height = videoRef.current!.videoHeight;
@@ -167,14 +182,17 @@ export default function LiveDetection() {
       const x1 = x - width / 2;
       const y1 = y - height / 2;
 
-      ctx.strokeStyle = '#00FF00';
+      ctx.strokeStyle = label == 'face' ? '#FF0000' : '#00FF00';
       ctx.lineWidth = 2;
       ctx.strokeRect(x1, y1, width, height);
 
-      ctx.fillStyle = 'rgba(0, 255, 0, 0.6)';
+      ctx.fillStyle = label == 'face' ? '#FF0000' : '#00FF00';
+      console.log(label)
+
+
       ctx.font = '15px sans-serif';
       ctx.fillText(
-        `${label} (${(confidence * 100).toFixed(1)}%)`,
+        `${label == 'face' ? 'Unknown' : label} (${(confidence * 100).toFixed(1)}%)`,
         x1 + 5,
         y1 - 5
       );
